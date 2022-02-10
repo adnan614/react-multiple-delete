@@ -12,6 +12,9 @@ const GetOperation = () => {
   // for delete modal
   const [deleteDataId, setDeleteDataId] = useState("");
   const [deleteModalIsOpen, setDeleteModalIsOpen] = useState(false);
+  // const [stateCustomer, setCustomerState] = useState([]);
+
+  // console.log(getData);
 
   // useEffect(() => {
   //   axios
@@ -26,11 +29,30 @@ const GetOperation = () => {
   // }, [url]);
   // console.log(getData);
 
-// get data from api
+  // get data from api
   const loadUsers = async () => {
     const res = await axios.get(url);
-    setData(res.data);
+    let user = res.data;
+    setData(
+      user.map((d) => {
+        return {
+          select: false,
+          id: d.id,
+          email: d.email,
+          fName: d.fName,
+          lName: d.lName,
+          country: d.country,
+          address: d.stAddress,
+        };
+      })
+    );
   };
+
+  //  console.log(getData);
+
+  //   useEffect(() => {
+  //   console.log(getData);
+  // }, []);
 
   useEffect(() => {
     loadUsers();
@@ -48,9 +70,18 @@ const GetOperation = () => {
   };
 
   const deleteUser = async () => {
-    // console.log(deleteDataId);
-    await axios.delete("https://61efe154732d93001778e670.mockapi.io/crud/" + deleteDataId);
-    closeDeleteModal();
+    // console.log('true');
+    let arrayids = [];
+    getData.map((d) => {
+      if (d.select) {
+        arrayids.push(d.id);
+      }
+    });
+  
+    // console.log(arrayids);
+    await axios.delete(
+      `https://61efe154732d93001778e670.mockapi.io/crud/${arrayids}`
+    );
     loadUsers();
   };
 
@@ -98,9 +129,26 @@ const GetOperation = () => {
           <div>
             <div className="-mx-4 sm:-mx-8 px-4 sm:px-8 py-4 overflow-x-auto">
               <div className="inline-block min-w-full shadow rounded-lg overflow-hidden">
+                <button className="px-3 bg-red-400 py-2" onClick={deleteUser}>
+                  Delete Customer
+                </button>
                 <table className="min-w-full leading-normal">
                   <thead>
                     <tr>
+                      <th>
+                        <input
+                          type="checkbox"
+                          onChange={(e) => {
+                            let value = e.target.checked;
+                            setData(
+                              getData.map((d) => {
+                                d.select = value;
+                                return d;
+                              })
+                            );
+                          }}
+                        />
+                      </th>
                       <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                         Frist Name
                       </th>
@@ -125,6 +173,26 @@ const GetOperation = () => {
                     {getData.map((data, index) => {
                       return (
                         <tr>
+                          <td>
+                            <input
+                              type="checkbox"
+                              checked={data.select}
+                              onChange={(e) => {
+                                let value = e.target.checked;
+
+                                setData(
+                                  getData.map((sd) => {
+                                    if (sd.id === data.id) {
+                                      // console.log('true');
+                                      sd.select = value;
+                                    }
+                                    return sd;
+                                  })
+                                );
+                              }}
+                            />
+                          </td>
+
                           <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div className="flex items-center">
                               <div className="ml-3">
@@ -135,13 +203,19 @@ const GetOperation = () => {
                             </div>
                           </td>
                           <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{data?.lName}</p>
+                            <p className="text-gray-900 whitespace-no-wrap">
+                              {data?.lName}
+                            </p>
                           </td>
                           <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{data?.email}</p>
+                            <p className="text-gray-900 whitespace-no-wrap">
+                              {data?.email}
+                            </p>
                           </td>
                           <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <p className="text-gray-900 whitespace-no-wrap">{data?.country}</p>
+                            <p className="text-gray-900 whitespace-no-wrap">
+                              {data?.country}
+                            </p>
                           </td>
                           <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <span className="relative inline-block px-3 py-1 font-semibold text-green-900 leading-tight">
@@ -149,7 +223,9 @@ const GetOperation = () => {
                                 aria-hidden=""
                                 className="absolute inset-0 bg-green-200 opacity-50 rounded-full"
                               ></span>
-                              <span className="relative">{data?.stAddress}</span>
+                              <span className="relative">
+                                {data?.stAddress}
+                              </span>
                             </span>
                           </td>
                           <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -157,7 +233,9 @@ const GetOperation = () => {
                               <Link to={"/delete/" + data.id}>
                                 <button>Edit</button>
                               </Link>
-                              <button onClick={() => openDeleteModal(data.id)}>Delete</button>
+                              <button onClick={() => openDeleteModal(data.id)}>
+                                Delete
+                              </button>
 
                               <Link to={"/edit/" + data.id}>
                                 <button>Edit</button>
